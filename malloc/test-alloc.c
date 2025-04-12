@@ -1,10 +1,7 @@
 #include <stdio.h>
-#include "block_alloc.h"
+#include "block-alloc.h"
 
 int main() {
-    // Initialize the allocator before first use
-    init_allocator();
-
     // Allocate some memory
     int *numbers = (int*)block_malloc(5 * sizeof(int));
     if (numbers) {

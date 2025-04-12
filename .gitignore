@@ -1,5 +1,8 @@
 # Build output
 *.out
+*.a
+*.o
+*.so
 
 # IDE specific files
 .idea/

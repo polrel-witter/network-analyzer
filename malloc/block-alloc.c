@@ -1,17 +1,8 @@
-#include <stddef.h>
-#include <stdint.h>
-
-typedef struct block_header {
-  size_t size;      // Size of the block including header
-  uint8_t is_free;  // 1 if block is free, 0 if allocated
-  struct block_header *next; // Next block in memory
-} block_header_t;
-
-// Minimum block size that can be allocated (including header)
-#define MIN_BLOCK_SIZE (sizeof(block_header_t) + 16)
+#include <unistd.h>
+#include "block-alloc.h"
 
 // Split block if remaining size would be at least MIN_BLOCK_SIZE
-static void split_block(block_header_t *block, size_t new_size) {
+void split_block(block_header_t *block, size_t new_size) {
   if (block->size >= new_size + MIN_BLOCK_SIZE) {
       block_header_t *new_block = (block_header_t *)((uint8_t *)block + new_size);
       new_block->size = block->size - new_size;
@@ -24,7 +15,7 @@ static void split_block(block_header_t *block, size_t new_size) {
 }
 
 // Try to merge block with next block if both are free
-static void coalesce_block(block_header_t *block) {
+void coalesce_block(block_header_t *block) {
   while (block->next != NULL &&
          block->is_free &&
          block->next->is_free &&
@@ -36,10 +27,10 @@ static void coalesce_block(block_header_t *block) {
 }
 
 // Head of the memory block list
-static block_header_t *heap_start = NULL;
+block_header_t *heap_start = NULL;
 
 // Initialize heap with initial block
-static block_header_t *init_heap(size_t initial_size) {
+block_header_t *init_heap(size_t initial_size) {
   block_header_t *block = (block_header_t *)sbrk(initial_size);
   if (block == (void*)-1) return NULL;
 
@@ -52,7 +43,7 @@ static block_header_t *init_heap(size_t initial_size) {
 }
 
 // Find first free block with sufficient size
-static block_header_t *find_free_block(size_t size) {
+block_header_t *find_free_block(size_t size) {
   if (!heap_start) {
       // Round up to page size for efficiency
       size_t heap_size = (size + 4095) & ~4095;
@@ -84,13 +75,14 @@ static block_header_t *find_free_block(size_t size) {
   return new_block;
 }
 
-// Allocate memory of given size
+// Public API; allocate memory of given size
 void *block_malloc(size_t size) {
   if (size == 0) return NULL;
 	if (size > SIZE_MAX - sizeof(block_header_t)) return NULL;  // Check for overflow
 
   // Account for header size and alignment
   size_t total_size = size + sizeof(block_header_t); // adding number of bytes needed for the block_heater_t; i.e. padding for metadata
+  // If total size requested is larger than min, only allocate up to min
   if (total_size < MIN_BLOCK_SIZE) {
       total_size = MIN_BLOCK_SIZE;
   }
