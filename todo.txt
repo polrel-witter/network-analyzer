@@ -1,0 +1,9 @@
++ Basic block allocator
++ Add memory coalescence and splitting
++ Removed data from freed blocks
++ First-fit free block search
++ Test latest changes
++ Optimization and performance analysis
+  + Gist of basics
+  + Run with more complicated program and run a cache hit/miss analysis on it.
+  + Make some optimization to block-alloc.c

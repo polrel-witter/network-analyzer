@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <string.h>
 #include "block-alloc.h"
 
 // Split block if remaining size would be at least MIN_BLOCK_SIZE
@@ -50,7 +51,7 @@ block_header_t *find_free_block(size_t size) {
       return init_heap(heap_size);
   }
 
-  // First fit approach
+  // Cycle through existing blocks until we find one that's free and has enough room for the size that was passed in
   block_header_t *current = heap_start;
   while (current) {
       if (current->is_free && current->size >= size) {
@@ -62,7 +63,7 @@ block_header_t *find_free_block(size_t size) {
   // No suitable block found, extend heap
   size_t heap_size = (size + 4095) & ~4095; // Round to page size
   block_header_t *last = heap_start;
-  while (last->next) last = last->next;
+  while (last->next) last = last->next; // Get to the next block
 
   block_header_t *new_block = (block_header_t *)sbrk(heap_size);
   if (new_block == (void*)-1) return NULL;
@@ -111,11 +112,9 @@ void block_free(void *ptr) {
   // Calculate user data size
   size_t user_size = block->size - sizeof(block_header_t);
 
-  // Secure cleanup - use volitile to prevent optimzation
-  volatile unsigned char *p = ptr;
-  while (user_size--) {
-      *p++ = 0;
-  }
+  // Zero out all user data for security
+  // using memset() since it's memory optimized
+  memset(ptr, 0, user_size);
 
   block->is_free = 1;
   coalesce_block(block); // Try to merge with subsequent blocks

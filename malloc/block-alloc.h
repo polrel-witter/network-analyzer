@@ -5,9 +5,9 @@
 #include <stdint.h>
 
 typedef struct block_header {
-    size_t size;      // Size of the block including header
-    uint8_t is_free;  // 1 if block is free, 0 if allocated
-    struct block_header *next; // Next block in memory
+    size_t size;                // Size of the block including header
+    uint8_t is_free;            // 1 if block is free, 0 if allocated
+    struct block_header *next;  // Next block in memory
 } block_header_t;
 
 // Minimum block size that can be allocated (including header)

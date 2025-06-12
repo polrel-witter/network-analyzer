@@ -1,0 +1,33 @@
+Starting allocator tests...
+
+Running simple alloc/free pattern...
+
+=== Simple Pattern ===
+Total allocations: 100
+Total frees: 100
+
+Running growing allocation pattern...
+
+=== Growing Pattern ===
+Total allocations: 110
+Total frees: 110
+
+Running fragmentation test...
+
+=== Fragmentation Test ===
+Total allocations: 116
+Total frees: 116
+
+Testing edge cases...
+Zero size allocation correctly returned NULL
+Small allocation (1 byte) returned: 0x5b5b47adf018
+Large allocation (1MB) returned: 0x5b5b47ae0018
+
+=== Edge Cases ===
+Total allocations: 118
+Total frees: 118
+
+Final metrics:
+Total allocations: 118
+Total frees: 118
+Leaked allocations: 0
